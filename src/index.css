@@ -109,3 +109,42 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+.movie-card {
+  border: 1px solid #ddd;
+  padding: 1rem;
+  margin: 1rem;
+  border-radius: 8px;
+  width: 200px;
+}
+
+.button-group {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.like-btn {
+  background-color: #ccc;
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.like-btn.liked {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.dislike-btn {
+  background-color: #ccc;
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.dislike-btn.disliked {
+  background-color: #f44336;
+  color: white;
+}
