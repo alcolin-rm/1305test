@@ -1,73 +1,51 @@
 import { useState } from 'react'
-import moviesData from './moviesData'
-import MovieCard from './movieCard'
-import './App.css'
+import { initialMovies } from './moviesData'
+
+function MovieCard({ movie, onLike, onDislike }) {
+  return (
+    <div style={{ border: '1px solid #ccc', padding: '10px', margin: '10px', borderRadius: '5px' }}>
+      <h3>{movie.title} ({movie.year})</h3>
+      <p>Likes: {movie.likes} | Dislikes: {movie.dislikes}</p>
+      <button onClick={() => onLike(movie.id)}>Like</button>
+      <button onClick={() => onDislike(movie.id)}>Dislike</button>
+    </div>
+  )
+}
 
 function App() {
-  const [movies, setMovies] = useState(moviesData)
-  const [likedMovie, setLikedMovie] = useState(null)
+  const [movies, setMovies] = useState(initialMovies)
 
   const handleLike = (id) => {
     setMovies(prevMovies =>
-      prevMovies.map(movie => {
-        if (movie.id === id) {
-          const newLikeStatus = movie.liked === true ? false : true
-          return {
-            ...movie,
-            liked: newLikeStatus,
-            disliked: newLikeStatus ? false : movie.disliked
-          }
-        }
-        return movie
-      })
+      prevMovies.map(movie =>
+        movie.id === id ? { ...movie, likes: movie.likes + 1 } : movie
+      )
     )
-    
-    const movie = movies.find(m => m.id === id)
-    if (!movie.liked) {
-      setLikedMovie(movie.title)
-    } else {
-      setLikedMovie(null)
-    }
   }
 
   const handleDislike = (id) => {
     setMovies(prevMovies =>
-      prevMovies.map(movie => {
-        if (movie.id === id) {
-          const newDislikeStatus = movie.disliked === true ? false : true
-          return {
-            ...movie,
-            disliked: newDislikeStatus,
-            liked: newDislikeStatus ? false : movie.liked
-          }
-        }
-        return movie
-      })
+      prevMovies.map(movie =>
+        movie.id === id ? { ...movie, dislikes: movie.dislikes + 1 } : movie
+      )
     )
-    
-    if (likedMovie === movies.find(m => m.id === id)?.title) {
-      setLikedMovie(null)
-    }
   }
 
+  const sortedMovies = [...movies].sort((a, b) => 
+    (a.likes + a.dislikes) - (b.likes + b.dislikes)
+  )
+
   return (
-    <div className="app">
+    <div>
       <h1>Movie Catalog</h1>
-      <div className="movie-list">
-        {movies.map(movie => (
-          <MovieCard
-            key={movie.id}
-            movie={movie}
-            onLike={handleLike}
-            onDislike={handleDislike}
-          />
-        ))}
-      </div>
-      {likedMovie && (
-        <div className="liked-panel">
-          {likedMovie}
-        </div>
-      )}
+      {sortedMovies.map(movie => (
+        <MovieCard
+          key={movie.id}
+          movie={movie}
+          onLike={handleLike}
+          onDislike={handleDislike}
+        />
+      ))}
     </div>
   )
 }
