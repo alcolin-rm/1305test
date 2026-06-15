@@ -110,7 +110,7 @@ code {
   background: var(--code-bg);
 }
 .movie-card {
-  border: 1px solid #ddd;
+  border: 1px solid #575757;
   padding: 1rem;
   margin: 1rem;
   border-radius: 8px;
@@ -124,7 +124,7 @@ code {
 }
 
 .like-btn {
-  background-color: #ccc;
+  background-color: #575757;
   border: none;
   padding: 0.5rem 1rem;
   cursor: pointer;
@@ -137,7 +137,7 @@ code {
 }
 
 .dislike-btn {
-  background-color: #ccc;
+  background-color: #575757;
   border: none;
   padding: 0.5rem 1rem;
   cursor: pointer;
