@@ -1,16 +1,27 @@
-// src/App.jsx
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { initialMovies } from './moviesData'
 import FilmCard from './components/FilmCard'
 
 function App() {
   const [movies, setMovies] = useState(initialMovies)
+  const [viewedCount, setViewedCount] = useState(0)
+
+  useEffect(() => {
+    const viewedMovies = movies.filter(movie => movie.viewed === true)
+    setViewedCount(viewedMovies.length)
+  }, [movies])
 
   const handleLike = (id) => {
     setMovies(prevMovies =>
       prevMovies.map(movie =>
         movie.id === id 
-          ? { ...movie, likes: movie.likes + 1, liked: true, disliked: false }
+          ? { 
+              ...movie, 
+              likes: movie.likes + 1, 
+              liked: true, 
+              disliked: false,
+              viewed: true
+            }
           : movie
       )
     )
@@ -20,7 +31,13 @@ function App() {
     setMovies(prevMovies =>
       prevMovies.map(movie =>
         movie.id === id 
-          ? { ...movie, dislikes: movie.dislikes + 1, disliked: true, liked: false }
+          ? { 
+              ...movie, 
+              dislikes: movie.dislikes + 1, 
+              disliked: true, 
+              liked: false,
+              viewed: true
+            }
           : movie
       )
     )
@@ -33,7 +50,8 @@ function App() {
         likes: 0,
         dislikes: 0,
         liked: false,
-        disliked: false
+        disliked: false,
+        viewed: false
       }))
     )
   }
@@ -49,7 +67,7 @@ function App() {
       <div style={{ flex: 1 }}>
         <h1>Movie Catalog</h1>
         <button onClick={handleClearStats} style={{ marginBottom: '20px', padding: '10px' }}>
-          clear stats
+          Clear Statistics
         </button>
         {sortedMovies.map(movie => (
           <FilmCard
@@ -66,7 +84,7 @@ function App() {
       </div>
       
       <div style={{ flex: 1 }}>
-        <h2>Мне понравилось ({likedMovies.length})</h2>
+        <h2>liked({likedMovies.length})</h2>
         {likedMovies.map(movie => (
           <div key={movie.id} style={{ border: '1px solid green', padding: '10px', margin: '10px', borderRadius: '5px' }}>
             <h3>{movie.title}</h3>
@@ -76,7 +94,7 @@ function App() {
           </div>
         ))}
         
-        <h2>Мне не понравилось ({dislikedMovies.length})</h2>
+        <h2>disliked({dislikedMovies.length})</h2>
         {dislikedMovies.map(movie => (
           <div key={movie.id} style={{ border: '1px solid red', padding: '10px', margin: '10px', borderRadius: '5px' }}>
             <h3>{movie.title}</h3>
@@ -85,6 +103,19 @@ function App() {
             <p>Likes: {movie.likes} | Dislikes: {movie.dislikes}</p>
           </div>
         ))}
+      </div>
+
+      <div style={{
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+        backgroundColor: '#333',
+        color: 'white',
+        padding: '15px 25px',
+        borderRadius: '10px',
+        fontSize: '18px',
+      }}>
+        watched: {viewedCount}
       </div>
     </div>
   )
