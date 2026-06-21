@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { initialMovies } from './moviesData'
 import FilmCard from './components/FilmCard'
+import classNames from 'classnames'
+import './App.css'
 
 function App() {
   const [movies, setMovies] = useState([])
@@ -97,20 +99,20 @@ function App() {
   const genres = [...new Set(movies.map(movie => movie.genre))]
 
   return (
-    <div style={{ display: 'flex', gap: '40px', padding: '20px' }}>
-      <div style={{ flex: 1 }}>
+    <div className="app-container">
+      <div className="app-column app-column--main">
         <h1>Movie Catalog</h1>
         
-        <div style={{ marginBottom: '20px', padding: '15px', border: '1px solid #ddd', borderRadius: '5px' }}>
+        <div className="filters">
           <h3>Filters</h3>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <div className="filters__group">
             <input
               type="text"
               name="title"
               placeholder="Search by title..."
               value={filters.title}
               onChange={handleFilterChange}
-              style={{ padding: '5px' }}
+              className="filters__input"
             />
             <input
               type="number"
@@ -118,7 +120,7 @@ function App() {
               placeholder="Year from"
               value={filters.yearFrom}
               onChange={handleFilterChange}
-              style={{ padding: '5px', width: '100px' }}
+              className="filters__input"
             />
             <input
               type="number"
@@ -126,77 +128,80 @@ function App() {
               placeholder="Year to"
               value={filters.yearTo}
               onChange={handleFilterChange}
-              style={{ padding: '5px', width: '100px' }}
+              className="filters__input"
             />
             <select
               name="genre"
               value={filters.genre}
               onChange={handleFilterChange}
-              style={{ padding: '5px' }}
+              className="filters__select"
             >
               <option value="">All Genres</option>
               {genres.map(genre => (
                 <option key={genre} value={genre}>{genre}</option>
               ))}
             </select>
-            <button onClick={() => setFilters({ title: '', yearFrom: '', yearTo: '', genre: '' })}>
+            <button 
+              onClick={() => setFilters({ title: '', yearFrom: '', yearTo: '', genre: '' })}
+              className="button button--clear"
+            >
               Clear Filters
             </button>
           </div>
         </div>
 
-        <button onClick={handleClearStats} style={{ marginBottom: '20px', padding: '10px' }}>
+        <button 
+          onClick={handleClearStats} 
+          className="button button--primary"
+        >
           Clear Statistics
         </button>
         
         {sortedMovies.map(movie => (
-          <FilmCard
-            key={movie.id}
-            title={movie.title}
-            date={movie.date}
-            genre={movie.genre}
-            likes={movie.likes}
-            dislikes={movie.dislikes}
-            handleLike={() => handleLike(movie.id)}
-            handleDislike={() => handleDislike(movie.id)}
-          />
-        ))}
+        <FilmCard
+          key={movie.id}
+          title={movie.title}
+          date={movie.date}
+          genre={movie.genre}
+          likes={movie.likes}
+          dislikes={movie.dislikes}
+          poster={movie.poster}  // <-- THIS MUST BE HERE
+          handleLike={() => handleLike(movie.id)}
+          handleDislike={() => handleDislike(movie.id)}
+        />
+      ))}
       </div>
       
-      <div style={{ flex: 1 }}>
-        <h2>liked({likedMovies.length})</h2>
-        {likedMovies.map(movie => (
-          <div key={movie.id} style={{ border: '1px solid green', padding: '10px', margin: '10px', borderRadius: '5px' }}>
-            <h3>{movie.title}</h3>
-            <p>Date: {movie.date}</p>
-            <p>Genre: {movie.genre}</p>
-            <p>Likes: {movie.likes} | Dislikes: {movie.dislikes}</p>
-          </div>
-        ))}
+      <div className="app-column app-column--side">
+        <div className="section section--liked">
+          <h2>liked ({likedMovies.length})</h2>
+          {likedMovies.map(movie => (
+            <div key={movie.id} className="movie-mini-card movie-mini-card--liked">
+              <div>
+                <h4>{movie.title}</h4>
+                <p>{movie.date} • {movie.genre}</p>
+                <p>Likes: {movie.likes} | Dislikes: {movie.dislikes}</p>
+              </div>
+            </div>
+          ))}
+        </div>
         
-        <h2>disliked({dislikedMovies.length})</h2>
-        {dislikedMovies.map(movie => (
-          <div key={movie.id} style={{ border: '1px solid red', padding: '10px', margin: '10px', borderRadius: '5px' }}>
-            <h3>{movie.title}</h3>
-            <p>Date: {movie.date}</p>
-            <p>Genre: {movie.genre}</p>
-            <p>Likes: {movie.likes} | Dislikes: {movie.dislikes}</p>
-          </div>
-        ))}
+        <div className="section section--disliked">
+          <h2>disliked ({dislikedMovies.length})</h2>
+          {dislikedMovies.map(movie => (
+            <div key={movie.id} className="movie-mini-card movie-mini-card--disliked">
+              <div>
+                <h4>{movie.title}</h4>
+                <p>{movie.date} • {movie.genre}</p>
+                <p>Likes: {movie.likes} | Dislikes: {movie.dislikes}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div style={{
-        position: 'fixed',
-        bottom: '20px',
-        right: '20px',
-        backgroundColor: '#333',
-        color: 'white',
-        padding: '15px 25px',
-        borderRadius: '10px',
-        fontSize: '18px',
-        boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
-      }}>
-        Просмотрено: {viewedCount}
+      <div className="viewed-counter">
+        viewed: {viewedCount}
       </div>
     </div>
   )
