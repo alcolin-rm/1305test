@@ -30,13 +30,19 @@ function FilmCard({ title, date, genre, likes, dislikes, poster, handleLike, han
         <div className="film-card__actions">
           <button 
             className="film-card__button film-card__button--like"
-            onClick={handleLike}
+            onClick={(e) => {
+              e.preventDefault()
+              handleLike()
+            }}
           >
             Like
           </button>
           <button 
             className="film-card__button film-card__button--dislike"
-            onClick={handleDislike}
+            onClick={(e) => {
+              e.preventDefault()
+              handleDislike()
+            }}
           >
             Dislike
           </button>

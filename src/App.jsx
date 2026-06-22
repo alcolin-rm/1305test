@@ -1,18 +1,23 @@
 import { useState, useEffect } from 'react'
+import { useSearchParams, Routes, Route, Link, useNavigate } from 'react-router-dom'
 import { initialMovies } from './moviesData'
 import FilmCard from './components/FilmCard'
+import FilmDetail from './components/FilmDetail'
 import classNames from 'classnames'
 import './App.css'
 
 function App() {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
   const [movies, setMovies] = useState([])
   const [filteredMovies, setFilteredMovies] = useState([])
   const [viewedCount, setViewedCount] = useState(0)
+
   const [filters, setFilters] = useState({
-    title: '',
-    yearFrom: '',
-    yearTo: '',
-    genre: ''
+    title: searchParams.get('search') || '',
+    yearFrom: searchParams.get('date_from') || '',
+    yearTo: searchParams.get('date_to') || '',
+    genre: searchParams.get('genre') || ''
   })
 
   useEffect(() => {
@@ -43,6 +48,26 @@ function App() {
       ...prev,
       [name]: value
     }))
+
+    const newParams = new URLSearchParams(searchParams)
+    if (value) {
+      const paramMap = {
+        title: 'search',
+        yearFrom: 'date_from',
+        yearTo: 'date_to',
+        genre: 'genre'
+      }
+      newParams.set(paramMap[name], value)
+    } else {
+      const paramMap = {
+        title: 'search',
+        yearFrom: 'date_from',
+        yearTo: 'date_to',
+        genre: 'genre'
+      }
+      newParams.delete(paramMap[name])
+    }
+    setSearchParams(newParams)
   }
 
   const handleLike = (id) => {
@@ -99,111 +124,124 @@ function App() {
   const genres = [...new Set(movies.map(movie => movie.genre))]
 
   return (
-    <div className="app-container">
-      <div className="app-column app-column--main">
-        <h1>Movie Catalog</h1>
-        
-        <div className="filters">
-          <h3>Filters</h3>
-          <div className="filters__group">
-            <input
-              type="text"
-              name="title"
-              placeholder="Search by title..."
-              value={filters.title}
-              onChange={handleFilterChange}
-              className="filters__input"
-            />
-            <input
-              type="number"
-              name="yearFrom"
-              placeholder="Year from"
-              value={filters.yearFrom}
-              onChange={handleFilterChange}
-              className="filters__input"
-            />
-            <input
-              type="number"
-              name="yearTo"
-              placeholder="Year to"
-              value={filters.yearTo}
-              onChange={handleFilterChange}
-              className="filters__input"
-            />
-            <select
-              name="genre"
-              value={filters.genre}
-              onChange={handleFilterChange}
-              className="filters__select"
-            >
-              <option value="">All Genres</option>
-              {genres.map(genre => (
-                <option key={genre} value={genre}>{genre}</option>
-              ))}
-            </select>
+    <Routes>
+      <Route path="/" element={
+        <div className="app-container">
+          <div className="app-column app-column--main">
+            <h1 className="app-title">Movie Catalog</h1>
+            
+            <div className="filters">
+              <h3>Filters</h3>
+              <div className="filters__group">
+                <input
+                  type="text"
+                  name="title"
+                  placeholder="Search by title..."
+                  value={filters.title}
+                  onChange={handleFilterChange}
+                  className="filters__input"
+                />
+                <input
+                  type="number"
+                  name="yearFrom"
+                  placeholder="Year from"
+                  value={filters.yearFrom}
+                  onChange={handleFilterChange}
+                  className="filters__input"
+                />
+                <input
+                  type="number"
+                  name="yearTo"
+                  placeholder="Year to"
+                  value={filters.yearTo}
+                  onChange={handleFilterChange}
+                  className="filters__input"
+                />
+                <select
+                  name="genre"
+                  value={filters.genre}
+                  onChange={handleFilterChange}
+                  className="filters__select"
+                >
+                  <option value="">All Genres</option>
+                  {genres.map(genre => (
+                    <option key={genre} value={genre}>{genre}</option>
+                  ))}
+                </select>
+                <button 
+                  onClick={() => {
+                    setFilters({ title: '', yearFrom: '', yearTo: '', genre: '' })
+                    setSearchParams({})
+                  }}
+                  className="button button--clear"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            </div>
+
             <button 
-              onClick={() => setFilters({ title: '', yearFrom: '', yearTo: '', genre: '' })}
-              className="button button--clear"
+              onClick={handleClearStats} 
+              className="button button--primary"
             >
-              Clear Filters
+              Clear Statistics
             </button>
+            
+            {sortedMovies.map(movie => (
+              <Link 
+                to={`/film/${movie.id}`} 
+                key={movie.id}
+                style={{ textDecoration: 'none', color: 'inherit' }}
+              >
+                <FilmCard
+                  title={movie.title}
+                  date={movie.date}
+                  genre={movie.genre}
+                  likes={movie.likes}
+                  dislikes={movie.dislikes}
+                  poster={movie.poster}
+                  handleLike={() => handleLike(movie.id)}
+                  handleDislike={() => handleDislike(movie.id)}
+                />
+              </Link>
+            ))}
+          </div>
+          
+          <div className="app-column app-column--side">
+            <div className="section section--liked">
+              <h2>Liked ({likedMovies.length})</h2>
+              {likedMovies.map(movie => (
+                <div key={movie.id} className="movie-mini-card movie-mini-card--liked">
+                  <div>
+                    <h4>{movie.title}</h4>
+                    <p>{movie.date} • {movie.genre}</p>
+                    <p>Likes: {movie.likes} | Dislikes: {movie.dislikes}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="section section--disliked">
+              <h2>Disliked ({dislikedMovies.length})</h2>
+              {dislikedMovies.map(movie => (
+                <div key={movie.id} className="movie-mini-card movie-mini-card--disliked">
+                  <div>
+                    <h4>{movie.title}</h4>
+                    <p>{movie.date} • {movie.genre}</p>
+                    <p>Likes: {movie.likes} | Dislikes: {movie.dislikes}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="viewed-counter">
+            Viewed: {viewedCount}
           </div>
         </div>
-
-        <button 
-          onClick={handleClearStats} 
-          className="button button--primary"
-        >
-          Clear Statistics
-        </button>
-        
-        {sortedMovies.map(movie => (
-        <FilmCard
-          key={movie.id}
-          title={movie.title}
-          date={movie.date}
-          genre={movie.genre}
-          likes={movie.likes}
-          dislikes={movie.dislikes}
-          poster={movie.poster}  // <-- THIS MUST BE HERE
-          handleLike={() => handleLike(movie.id)}
-          handleDislike={() => handleDislike(movie.id)}
-        />
-      ))}
-      </div>
-      
-      <div className="app-column app-column--side">
-        <div className="section section--liked">
-          <h2>liked ({likedMovies.length})</h2>
-          {likedMovies.map(movie => (
-            <div key={movie.id} className="movie-mini-card movie-mini-card--liked">
-              <div>
-                <h4>{movie.title}</h4>
-                <p>{movie.date} • {movie.genre}</p>
-                <p>Likes: {movie.likes} | Dislikes: {movie.dislikes}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-        
-        <div className="section section--disliked">
-          <h2>disliked ({dislikedMovies.length})</h2>
-          {dislikedMovies.map(movie => (
-            <div key={movie.id} className="movie-mini-card movie-mini-card--disliked">
-              <div>
-                <h4>{movie.title}</h4>
-                <p>{movie.date} • {movie.genre}</p>
-                <p>Likes: {movie.likes} | Dislikes: {movie.dislikes}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="viewed-counter">
-        viewed: {viewedCount}
-      </div>
-    </div>
+      } />
+      <Route path="/film/:id" element={<FilmDetail movies={movies} />} />
+    </Routes>
   )
 }
 
